@@ -8,11 +8,16 @@
 
 本工具包提供薄膜应变片关键参数的计算功能，如应变系数、微应变和灵敏系数（GF）。主要包括：
 - 核心计算模块（`basic_calculation.py`），包含基本的应变片计算公式
+- 基于图像的电阻变化分析模块，用于应变和时间相关性分析
 - 交互式Web界面，支持参数输入和实时计算
+
 
 ## 功能特点
 
 - **核心计算**：利用应变片的基本力学和电学特性，计算与应变成相关的参数
+- **基于图像的分析**：
+  - `image_deltaR_strain`：分析电阻变化与应变的关系，生成相关性图表
+  - `image_deltaR_time`：分析电阻随时间的变化，生成时间序列图表
 - **Web界面**：易于使用的浏览器界面，支持输入验证和单位转换（Ω、kΩ、MΩ）
 - **交互式结果**：实时计算以下参数：
   - 应变系数（epsilon）
@@ -85,7 +90,11 @@ print(f"灵敏系数：{gf_sensitivity_calculate['gf']}")
 ```
 foil-strain-gauge-calculation-toolkit/
 ├── code/
-│   └── basic_calculation.py   # 核心计算逻辑
+│   ├── basic_calculation.py   # 核心计算逻辑
+│   ├── image_deltaR_strain/   # 电阻变化与应变关系分析
+│   │   └── basic.py           # 应变-电阻相关性计算与绘图
+│   └── image_deltaR_time/     # 电阻随时间变化分析
+│       └── basic.py           # 时间序列电阻变化计算与绘图
 └── web/
     └── basic_calculation/
         ├── app.py             # Web服务器（Flask应用）

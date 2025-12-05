@@ -2,17 +2,22 @@
 
 A Python-based toolkit for calculating strain gauge parameters, including a core calculation module and a user-friendly web interface.
 
-[简体中文](README/README_zh.md) | [English](README.md)
+[简体中文](README_zh.md) | [English](README.md)
 
 ## Overview
 
 This toolkit provides functionality to compute key parameters for foil strain gauges, such as strain coefficient, microstrain, and gauge factor (GF). It includes:
 - A core calculation module (`basic_calculation.py`) with essential strain gauge formulas
+- Image-based resistance change analysis modules for strain and time correlation
 - A web interface for interactive parameter input and real-time calculations
+
 
 ## Features
 
 - **Core Calculations**: Compute strain-related parameters using fundamental mechanical and electrical properties of strain gauges
+- **Image-based Analysis**:
+  - `image_deltaR_strain`: Analyze resistance change vs. strain relationship, generate correlation plots
+  - `image_deltaR_time`: Analyze resistance change over time, generate time-series plots
 - **Web Interface**: Easy-to-use browser-based interface with input validation and unit conversion (Ω, kΩ, MΩ)
 - **Interactive Results**: Instant calculation of:
   - Strain coefficient (epsilon)
@@ -85,7 +90,11 @@ print(f"Gauge factor: {gf_sensitivity_calculate['gf']}")
 ```
 foil-strain-gauge-calculation-toolkit/
 ├── code/
-│   └── basic_calculation.py   # Core calculation logic
+│   ├── basic_calculation.py   # Core calculation logic
+│   ├── image_deltaR_strain/   # Resistance change vs. strain analysis
+│   │   └── basic.py           # Strain-resistance correlation calculations and plotting
+│   └── image_deltaR_time/     # Resistance change over time analysis
+│       └── basic.py           # Time-series resistance change calculations and plotting
 └── web/
     └── basic_calculation/
         ├── app.py             # Web server (Flask application)
