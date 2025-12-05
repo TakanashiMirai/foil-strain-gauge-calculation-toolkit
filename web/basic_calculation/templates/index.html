@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应变与灵敏度计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f8fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #165dff 0%, #4080ff 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1f2937;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4080ff;
+            box-shadow: 0 0 0 4px rgba(64, 128, 255, 0.1);
+            background: white;
+        }
+
+        .form-group input:invalid {
+            border-color: #ff4d4f;
+        }
+
+        /* 单位切换按钮样式 */
+        .unit-switcher {
+            display: flex;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .unit-btn {
+            padding: 12px 16px;
+            background: #f9fafb;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .unit-btn:hover {
+            background: #f0f7ff;
+            color: #165dff;
+        }
+
+        .unit-btn.active {
+            background: #165dff;
+            color: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #165dff 0%, #4080ff 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            margin: 0 32px 32px;
+            padding: 24px;
+            border-radius: 12px;
+            background: #f5f9ff;
+            border: 1px solid #e6f0ff;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            color: #165dff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e6f0ff;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f7ff;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .result-value {
+            color: #165dff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #ff4d4f;
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 0 32px 32px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 8px;
+            }
+            .form-section {
+                padding: 20px;
+            }
+            .result-section, .error-message {
+                margin: 0 20px 20px;
+                padding: 16px;
+            }
+            .input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .unit-switcher {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>应变与灵敏度计算器</h1>
+            <p>输入参数自动计算应变系数、微应变及灵敏度</p>
+        </div>
+
+        <div class="form-section">
+            <form id="calculatorForm" method="POST">
+                <!-- 隐藏输入框用于传递换算后的欧姆值 -->
+                <input type="hidden" id="R0_ohm" name="R0">
+                <input type="hidden" id="R1_ohm" name="R1">
+
+                <div class="form-group">
+                    <label for="y">自由端挠度 y (mm)</label>
+                    <input type="number" step="0.001" id="y" name="y" required>
+                </div>
+                <div class="form-group">
+                    <label for="x">应变计中心到载荷点的距离 x (mm)</label>
+                    <input type="number" step="0.001" id="x" name="x" required>
+                </div>
+                <div class="form-group">
+                    <label for="h">梁厚度 h (mm)</label>
+                    <input type="number" step="0.001" id="h" name="h" required>
+                </div>
+                <div class="form-group">
+                    <label for="l">悬臂梁长度 l (mm)</label>
+                    <input type="number" step="0.001" id="l" name="l" required min="0.001">
+                </div>
+
+                <!-- 零应变电阻 R0 带单位切换 -->
+                <div class="form-group">
+                    <label>零应变电阻 R₀</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="0.001" id="R0_input" required min="0.001" placeholder="请输入电阻值">
+                        <div class="unit-switcher">
+                            <button type="button" class="unit-btn active" data-unit="ohm" data-target="R0">Ω</button>
+                            <button type="button" class="unit-btn" data-unit="kohm" data-target="R0">kΩ</button>
+                            <button type="button" class="unit-btn" data-unit="mohm" data-target="R0">MΩ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 变化后电阻 R1 带单位切换 -->
+                <div class="form-group">
+                    <label>当前电阻 R₁</label>
+                    <div class="input-wrapper">
+                        <input type="number" step="0.001" id="R1_input" required placeholder="请输入电阻值">
+                        <div class="unit-switcher">
+                            <button type="button" class="unit-btn active" data-unit="ohm" data-target="R1">Ω</button>
+                            <button type="button" class="unit-btn" data-unit="kohm" data-target="R1">kΩ</button>
+                            <button type="button" class="unit-btn" data-unit="mohm" data-target="R1">MΩ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">开始计算</button>
+            </form>
+        </div>
+
+        <div id="errorMsg" class="error-message"></div>
+
+        <div id="resultBox" class="result-section">
+            <div class="result-title">计算结果</div>
+            <div class="result-item">
+                <span class="result-label">应变系数 (epsilon)：</span>
+                <span class="result-value" id="epsilonValue"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">微应变 (μ_epsilon)：</span>
+                <span class="result-value" id="miuEpsilonValue"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">灵敏度 (GF)：</span>
+                <span class="result-value" id="gfValue"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('calculatorForm');
+            const resultBox = document.getElementById('resultBox');
+            const errorMsg = document.getElementById('errorMsg');
+
+            // 单位切换逻辑
+            const unitButtons = document.querySelectorAll('.unit-btn');
+            unitButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除同组按钮的active状态
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+                    // 添加当前按钮的active状态
+                    this.classList.add('active');
+                });
+            });
+
+            // 换算电阻值到欧姆
+            function convertToOhms(value, unit) {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) return 0;
+
+                switch(unit) {
+                    case 'kohm': // 千欧姆
+                        return numValue * 1000;
+                    case 'mohm': // 兆欧姆
+                        return numValue * 1000000;
+                    default: // 欧姆
+                        return numValue;
+                }
+            }
+
+            // 表单提交前处理
+            form.addEventListener('submit', function(e) {
+                // 获取R0的单位和值
+                const r0Unit = document.querySelector('[data-target="R0"].active').dataset.unit;
+                const r0Value = document.getElementById('R0_input').value;
+                document.getElementById('R0_ohm').value = convertToOhms(r0Value, r0Unit);
+
+                // 获取R1的单位和值
+                const r1Unit = document.querySelector('[data-target="R1"].active').dataset.unit;
+                const r1Value = document.getElementById('R1_input').value;
+                document.getElementById('R1_ohm').value = convertToOhms(r1Value, r1Unit);
+            });
+
+            // 展示后端返回的结果
+            {% if result %}
+                {% if result is string %}
+                    errorMsg.textContent = '{{ result }}';
+                    errorMsg.classList.add('show');
+                    resultBox.classList.remove('show');
+                {% else %}
+                    document.getElementById('epsilonValue').textContent = '{{ result.epsilon }} (无量纲)';
+                    document.getElementById('miuEpsilonValue').textContent = '{{ result.miu_epsilon }} (无量纲)';
+                    document.getElementById('gfValue').textContent = '{{ result.gf }} (无量纲)';
+                    resultBox.classList.add('show');
+                    errorMsg.classList.remove('show');
+                {% endif %}
+            {% endif %}
+
+            // 表单重置时清空结果
+            form.addEventListener('reset', function() {
+                resultBox.classList.remove('show');
+                errorMsg.classList.remove('show');
+                // 重置单位按钮状态
+                document.querySelectorAll('.unit-switcher').forEach(switcher => {
+                    switcher.querySelector('[data-unit="ohm"]').classList.add('active');
+                    switcher.querySelectorAll('[data-unit="kohm"], [data-unit="mohm"]').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
