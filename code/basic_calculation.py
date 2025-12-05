@@ -29,11 +29,15 @@ def epsilon_calculate():
     miu_epsilon = epsilon * 1000000
     print(f"epsilon: {epsilon} (Dimensionless)\n μ_epsilon: {miu_epsilon} (Dimensionless)")
 
+    return epsilon, miu_epsilon
+
 # sensitivity 灵敏度计算函数
 def gf_sensitivity_calculate():
     epsilon = (3 * y * h * x) / (2 * pow(l, 3))
     gf = (delta_R / R_0) / epsilon
     print(f"GF: {gf} (Dimensionless)")
+
+    return gf
 
 if __name__ == '__main__':
     epsilon_calculate()
